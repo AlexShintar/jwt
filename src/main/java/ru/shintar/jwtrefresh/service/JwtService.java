@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import ru.shintar.jwtrefresh.exception.AccessDeniedException;
 import ru.shintar.jwtrefresh.model.dto.JwtResponse;
@@ -38,8 +36,6 @@ public class JwtService {
     private Duration refreshTokenExpiration;
 
     private final UserService userService;
-
-    private final UserDetailsService userDetailsService;
 
     public String generateAccessToken(User user) {
         return generateToken(user, accessTokenExpiration, jwtSecret);
@@ -113,7 +109,7 @@ public class JwtService {
     }
     public Authentication getAuthentication(String token) {
         String userName = getUsernameFromJWT(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        User user = userService.getByUsername(userName);
+        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 }
