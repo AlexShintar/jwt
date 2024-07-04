@@ -1,6 +1,7 @@
 package ru.shintar.jwtrefresh.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +10,7 @@ import ru.shintar.jwtrefresh.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -20,8 +21,9 @@ public class UserService {
         }
     }
 
-    public User getByUsername(String username) throws UsernameNotFoundException {
+    @Override
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User %s not found" .formatted(username)));
+                .orElseThrow(() -> new UsernameNotFoundException("User %s not found".formatted(username)));
     }
 }

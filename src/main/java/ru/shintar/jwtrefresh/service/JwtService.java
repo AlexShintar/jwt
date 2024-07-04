@@ -64,7 +64,7 @@ public class JwtService {
             throw new AccessDeniedException();
         }
         String userName = getUsernameFromJWT(refresh);
-        User user = userService.getByUsername(userName);
+        User user = userService.loadUserByUsername(userName);
         final String accessToken = generateAccessToken(user);
         final String refreshToken = generateRefreshToken(user);
 
@@ -109,7 +109,7 @@ public class JwtService {
     }
     public Authentication getAuthentication(String token) {
         String userName = getUsernameFromJWT(token);
-        User user = userService.getByUsername(userName);
+        User user = userService.loadUserByUsername(userName);
         return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 }

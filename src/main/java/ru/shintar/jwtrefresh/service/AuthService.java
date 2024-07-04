@@ -49,7 +49,7 @@ public class AuthService {
             throw new BadCredentialsException(e.getMessage());
         }
 
-        User user = userService.getByUsername(request.getUsername());
+        User user = userService.loadUserByUsername(request.getUsername());
         final String accessToken = jwtService.generateAccessToken(user);
         final String refreshToken = jwtService.generateRefreshToken(user);
 

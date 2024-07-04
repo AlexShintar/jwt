@@ -13,13 +13,14 @@ import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.shintar.jwtrefresh.service.JwtService;
 
 import java.util.Arrays;
 
 
-
+@Component
 @AllArgsConstructor
 public class JwtFilter extends GenericFilterBean {
 
