@@ -8,19 +8,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.shintar.jwtrefresh.service.AuthService;
 
-import java.security.Principal;
-
-@Tag(name = "User")
+@Tag(name = "Hello")
 @RestController
-@RequestMapping(path ="/api/v1/hello",
+@RequestMapping(path = "/api/v1/hello",
         produces = MediaType.TEXT_PLAIN_VALUE)
 @SecurityRequirement(name = "bearerAuth")
 @RequiredArgsConstructor
 public class HelloController {
+
+    final private AuthService authService;
 
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping(value = "/user")
@@ -31,8 +33,9 @@ public class HelloController {
                     responseCode = "200"
             )
     )
-    public ResponseEntity<String> helloUser(Principal principal) {
-        return ResponseEntity.ok("Hello user " + principal.getName() + "!");
+    public ResponseEntity<String> helloUser() {
+        Authentication authentication = authService.getAuthInfo();
+        return ResponseEntity.ok("Hello user " + authentication.getPrincipal() + "!");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -44,7 +47,8 @@ public class HelloController {
                     responseCode = "200"
             )
     )
-    public ResponseEntity<String> helloAdmin(Principal principal) {
-        return ResponseEntity.ok("Hello admin " + principal.getName() + "!");
+    public ResponseEntity<String> helloAdmin() {
+        Authentication authentication = authService.getAuthInfo();
+        return ResponseEntity.ok("Hello admin " + authentication.getPrincipal() + "!");
     }
 }

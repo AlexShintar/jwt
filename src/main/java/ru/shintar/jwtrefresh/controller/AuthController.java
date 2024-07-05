@@ -14,7 +14,7 @@ import ru.shintar.jwtrefresh.model.dto.JwtResponse;
 import ru.shintar.jwtrefresh.model.dto.RefreshJwtRequest;
 import ru.shintar.jwtrefresh.service.AuthService;
 
-@Tag(name = "Token")
+@Tag(name = "Registration and authorization")
 @RestController
 @RequestMapping(path = "/api/v1/auth",
         consumes = MediaType.APPLICATION_JSON_VALUE,

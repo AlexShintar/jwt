@@ -8,12 +8,11 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.shintar.jwtrefresh.service.JwtService;
 
@@ -37,33 +36,42 @@ public class JwtFilter extends GenericFilterBean {
                          final FilterChain filterChain) {
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        String bearerToken = httpRequest.getHeader(HEADER_NAME);
 
-        if (Arrays.stream(this.allowedPaths).anyMatch(it -> httpRequest.getRequestURI().contains(it))) {
+        if (Arrays.stream(allowedPaths).anyMatch(it -> httpRequest.getRequestURI().contains(it))) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
+
+        final String token = getTokenFromRequest(httpRequest);
+
         try {
-            if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
-                bearerToken = bearerToken.substring(7);
-                if (jwtService.validateToken(bearerToken)) {
-                    Authentication authentication = jwtService.getAuthentication(bearerToken);
-                    if (authentication != null) {
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+            if (token != null && jwtService.validateToken(token)) {
+                Authentication authentication = jwtService.getAuthentication(token);
+                if (authentication != null) {
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } else {
-                var httpResponse = (HttpServletResponse) servletResponse;
+                HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
                 httpResponse.setStatus(401);
-                httpResponse.getWriter().println("No JWT token");
+                httpResponse.getWriter().println("No token");
                 return;
             }
-        } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException | ExpiredJwtException e) {
-            var httpResponse = (HttpServletResponse) servletResponse;
+        } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException |
+                 ExpiredJwtException e) {
+            HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
             httpResponse.setStatus(401);
-            httpResponse.getWriter().println("Invalid JWT token");
+            httpResponse.getWriter().println("Invalid token");
             return;
         }
+
         filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    private String getTokenFromRequest(HttpServletRequest request) {
+        final String bearer = request.getHeader(HEADER_NAME);
+        if (StringUtils.hasText(bearer) && bearer.startsWith(BEARER_PREFIX)) {
+            return bearer.substring(7);
+        }
+        return null;
     }
 }
