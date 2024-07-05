@@ -7,8 +7,6 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.shintar.jwtrefresh.exception.AccessDeniedException;
@@ -123,11 +121,5 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(jwtToken)
                 .getPayload();
-    }
-
-    public Authentication getAuthentication(String token) {
-        String userName = getUsernameFromJWT(token);
-        User user = userService.loadUserByUsername(userName);
-        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 }
