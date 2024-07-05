@@ -27,7 +27,7 @@ public class HelloControllerTest {
     static final String API_PATH = "/api/v1/hello/";
 
     @Test
-    void userIsNotAuthenticatedAccessIsForbiden() throws Exception {
+    void userIsNotAuthenticatedAccessIsForbidden() throws Exception {
         mockMvc.perform(get(API_PATH + "user"))
                 .andDo(print())
                 .andExpect(status().is(401));

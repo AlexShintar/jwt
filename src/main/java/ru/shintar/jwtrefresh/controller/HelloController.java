@@ -24,7 +24,7 @@ public class HelloController {
 
     final private AuthService authService;
 
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping(value = "/user")
     @Operation(
             summary = "Hello user endpoint",
@@ -35,20 +35,20 @@ public class HelloController {
     )
     public ResponseEntity<String> helloUser() {
         Authentication authentication = authService.getAuthInfo();
-        return ResponseEntity.ok("Hello user " + authentication.getPrincipal() + "!");
+        return ResponseEntity.ok("Hello user " + authentication.getPrincipal());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping(value = "/admin")
     @Operation(
             summary = "Hello admin endpoint",
-            description = "Returns a welcome message for the authorized admin",
+            description = "Returns a hello message for the authorized admin",
             responses = @ApiResponse(
                     responseCode = "200"
             )
     )
     public ResponseEntity<String> helloAdmin() {
         Authentication authentication = authService.getAuthInfo();
-        return ResponseEntity.ok("Hello admin " + authentication.getPrincipal() + "!");
+        return ResponseEntity.ok("Hello admin " + authentication.getPrincipal());
     }
 }

@@ -9,15 +9,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import ru.shintar.jwtrefresh.model.entity.User;
 import ru.shintar.jwtrefresh.service.JwtService;
+import ru.shintar.jwtrefresh.service.UserService;
 
 import java.util.Arrays;
-
 
 @Component
 @AllArgsConstructor
@@ -28,6 +31,7 @@ public class JwtFilter extends GenericFilterBean {
     private final String[] allowedPaths = {"swagger", "auth", "api-docs"};
 
     private final JwtService jwtService;
+    private final UserService userService;
 
     @Override
     @SneakyThrows
@@ -42,16 +46,19 @@ public class JwtFilter extends GenericFilterBean {
             return;
         }
 
-
-
         final String token = getTokenFromRequest(httpRequest);
 
         try {
             if (token != null && jwtService.validateToken(token)) {
-                Authentication authentication = jwtService.getAuthentication(token);
-                if (authentication != null) {
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+                String username = jwtService.getUsernameFromJWT(token);
+                User user = userService.loadUserByUsername(username);
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
+                context.setAuthentication(authToken);
+                SecurityContextHolder.setContext(context);
+
             } else {
                 HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
                 httpResponse.setStatus(401);

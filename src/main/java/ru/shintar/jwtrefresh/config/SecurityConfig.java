@@ -22,7 +22,6 @@ import ru.shintar.jwtrefresh.service.UserService;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-    private final UserService userService;
     private static final String[] AUTH_WHITELIST = {
             "/swagger-resources/**",
             "/swagger-ui/**",
@@ -40,9 +39,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(AUTH_WHITELIST).permitAll()
-                                .anyRequest().authenticated())
-                .userDetailsService(userService);
-
+                                .anyRequest().authenticated());
         return http.build();
     }
 
