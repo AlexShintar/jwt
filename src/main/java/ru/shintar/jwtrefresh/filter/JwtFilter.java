@@ -58,6 +58,9 @@ public class JwtFilter extends GenericFilterBean {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
                 context.setAuthentication(authToken);
                 SecurityContextHolder.setContext(context);
+                System.out.println();
+                System.out.println(context);
+                System.out.println();
 
             } else {
                 HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;

@@ -31,6 +31,9 @@ public class HelloControllerTest {
         mockMvc.perform(get(API_PATH + "user"))
                 .andDo(print())
                 .andExpect(status().is(401));
+        mockMvc.perform(get(API_PATH + "admin"))
+                .andDo(print())
+                .andExpect(status().is(401));
     }
 
     @Test
@@ -43,5 +46,10 @@ public class HelloControllerTest {
                         .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk());
+        mockMvc.perform(get(API_PATH + "admin")
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().is(403));
     }
 }
