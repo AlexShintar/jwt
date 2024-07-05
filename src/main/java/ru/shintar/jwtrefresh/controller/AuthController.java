@@ -1,6 +1,10 @@
 package ru.shintar.jwtrefresh.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -20,6 +24,9 @@ import ru.shintar.jwtrefresh.service.AuthService;
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Successful", content = {@Content(schema = @Schema(implementation = JwtResponse.class), mediaType = "application/json")})
+})
 public class AuthController {
 
         private final AuthService authService;

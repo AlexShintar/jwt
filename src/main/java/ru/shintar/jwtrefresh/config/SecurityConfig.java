@@ -28,7 +28,7 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/security/**",
-            "/api/v1/auth"
+            "/api/v1/auth/**"
     };
 
     @Bean
@@ -40,7 +40,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(AUTH_WHITELIST).permitAll()
-                                .requestMatchers("hello/admin/**").hasAuthority("ADMIN")
                                 .anyRequest().authenticated())
                 .userDetailsService(userService);
 
