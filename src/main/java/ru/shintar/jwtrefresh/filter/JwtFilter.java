@@ -79,7 +79,7 @@ public class JwtFilter extends GenericFilterBean {
     private String getTokenFromRequest(HttpServletRequest request) {
         final String bearer = request.getHeader(HEADER_NAME);
         if (StringUtils.hasText(bearer) && bearer.startsWith(BEARER_PREFIX)) {
-            return bearer.substring(7);
+            return bearer.substring(BEARER_PREFIX.length());
         }
         return null;
     }
