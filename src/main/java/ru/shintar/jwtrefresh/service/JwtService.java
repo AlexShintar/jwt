@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.shintar.jwtrefresh.exception.AccessDeniedException;
+import ru.shintar.jwtrefresh.exception.RefreshTokenException;
 import ru.shintar.jwtrefresh.model.dto.JwtResponse;
 import ru.shintar.jwtrefresh.model.entity.User;
 
@@ -57,19 +59,30 @@ public class JwtService {
                 .claim(ID_CLAIM, user.getId())
                 .compact();
     }
-
-    public JwtResponse refreshToken(String refresh) {
-
-        if (!validateToken(refresh)) {
+    @Transactional
+    public JwtResponse refreshToken(String refreshToken) {
+        if (!validateToken(refreshToken)) {
             throw new AccessDeniedException();
         }
-        String userName = getUsernameFromJWT(refresh);
+        String userName = getUsernameFromJWT(refreshToken);
         User user = userService.loadUserByUsername(userName);
+        String saveRefreshToken = user.getRefreshToken();
+
+        if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
+            return updateUserToken(user);
+        }
+        throw new RefreshTokenException("Error refresh token for user: " + userName);
+    }
+    @Transactional
+    public JwtResponse updateUserToken(User user){
         final String accessToken = generateAccessToken(user);
         final String refreshToken = generateRefreshToken(user);
+        user.setRefreshToken(refreshToken);
+        userService.updateUser(user);
 
         return new JwtResponse(accessToken, refreshToken);
     }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
@@ -94,10 +107,12 @@ public class JwtService {
     public String getUsernameFromJWT(String jwtToken) {
         return getClaimFromJWT(jwtToken, Claims::getSubject);
     }
+
     public <T> T getClaimFromJWT(String jwtToken, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromJWT(jwtToken);
         return claimsResolver.apply(claims);
     }
+
     private Claims getAllClaimsFromJWT(String jwtToken) {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
@@ -107,6 +122,7 @@ public class JwtService {
                 .parseSignedClaims(jwtToken)
                 .getPayload();
     }
+
     public Authentication getAuthentication(String token) {
         String userName = getUsernameFromJWT(token);
         User user = userService.loadUserByUsername(userName);
