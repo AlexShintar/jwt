@@ -31,16 +31,6 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-//    @Transactional
-//    public void updateUser(User update) {
-//        User user = loadUserByUsername(update.getUsername());
-//        user.setUsername("bob");
-//        System.out.println("!!!!!!!!!!!!!!!!!!!!!");
-//        System.out.println(user);
-//        System.out.println("!!!!!!!!!!!!!!!!!!!!!");
-//        userRepository.save(user);
-//    }
-
     @Override
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)

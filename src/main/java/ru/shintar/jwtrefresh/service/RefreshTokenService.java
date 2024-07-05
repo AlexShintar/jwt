@@ -13,7 +13,6 @@ public class RefreshTokenService {
     private final TokenRepository tokenRepository;
     @Transactional
     public void save(Long userId, String refreshToken) {
-        System.out.println("savesavesavesavesavesavesavesavesavesavesavesavesave");
         RefreshToken token = tokenRepository.findByUserId(userId).orElse(new RefreshToken());
         token.setUserId(userId);
         token.setValue(refreshToken);
@@ -22,7 +21,6 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshToken getRefreshTokenValueByUserId(Long userId) {
-        System.out.println("!!!!!!!!!!!!getRefreshTokenValuseByUserId!!!!!!!!!");
         return tokenRepository.findByUserId(userId).orElse(null);
     }
 }
