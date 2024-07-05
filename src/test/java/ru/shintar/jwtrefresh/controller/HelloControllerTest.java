@@ -27,13 +27,13 @@ public class HelloControllerTest {
     static final String API_PATH = "/api/v1/hello/";
 
     @Test
-    void userIsNotAuthenticatedAccessIsDenied() throws Exception {
+    void userIsNotAuthenticatedAccessIsForbiden() throws Exception {
         mockMvc.perform(get(API_PATH + "user"))
                 .andDo(print())
-                .andExpect(status().is(403));
+                .andExpect(status().is(401));
         mockMvc.perform(get(API_PATH + "admin"))
                 .andDo(print())
-                .andExpect(status().is(403));
+                .andExpect(status().is(401));
     }
 
     @Test
@@ -50,6 +50,6 @@ public class HelloControllerTest {
                         .contentType("application/json")
                         .header("Authorization", "Bearer " + token))
                 .andDo(print())
-                .andExpect(status().is(403));
+                .andExpect(status().is(401));
     }
 }

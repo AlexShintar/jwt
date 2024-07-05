@@ -25,7 +25,7 @@ public class JwtFilter extends GenericFilterBean {
 
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
-    private final String[] allowedPaths = {"swagger", "auth"};
+    private final String[] allowedPaths = {"swagger", "auth", "api-docs"};
 
     private final JwtService jwtService;
 
@@ -41,6 +41,8 @@ public class JwtFilter extends GenericFilterBean {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
+
+
 
         final String token = getTokenFromRequest(httpRequest);
 
