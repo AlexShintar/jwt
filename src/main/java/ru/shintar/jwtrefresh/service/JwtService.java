@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.shintar.jwtrefresh.exception.AccessDeniedException;
 import ru.shintar.jwtrefresh.exception.RefreshTokenException;
 import ru.shintar.jwtrefresh.model.dto.JwtResponse;
+import ru.shintar.jwtrefresh.model.entity.RefreshToken;
 import ru.shintar.jwtrefresh.model.entity.User;
 
 import javax.crypto.SecretKey;
@@ -38,6 +39,7 @@ public class JwtService {
     private Duration refreshTokenExpiration;
 
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     public String generateAccessToken(User user) {
         return generateToken(user, accessTokenExpiration, jwtSecret);
@@ -66,19 +68,19 @@ public class JwtService {
         }
         String userName = getUsernameFromJWT(refreshToken);
         User user = userService.loadUserByUsername(userName);
-        String saveRefreshToken = user.getRefreshToken();
+        RefreshToken saveRefreshToken = refreshTokenService.getRefreshTokenValueByUserId(user.getId());
 
-        if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-            return updateUserToken(user);
+        if (saveRefreshToken != null && saveRefreshToken.getValue().equals(refreshToken)) {
+            return updateRefreshToken(user);
         }
         throw new RefreshTokenException("Error refresh token for user: " + userName);
     }
     @Transactional
-    public JwtResponse updateUserToken(User user){
+    public JwtResponse updateRefreshToken(User user){
         final String accessToken = generateAccessToken(user);
         final String refreshToken = generateRefreshToken(user);
-        user.setRefreshToken(refreshToken);
-        userService.updateUser(user);
+
+        refreshTokenService.save(user.getId(), refreshToken);
 
         return new JwtResponse(accessToken, refreshToken);
     }

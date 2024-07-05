@@ -29,8 +29,6 @@ public class User implements UserDetails {
 
     private String password;
 
-    private String refreshToken;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles")
     @Enumerated(EnumType.STRING)
